@@ -17,7 +17,7 @@ jobs:
       - name: Verify source and extract
         shell: powershell
         run: |
-          $expected = '40092188576a4373ad111f7b4739281b9cefce79cd1d5a32d33e35c2d4dfe741'
+          $expected = 'f26534299bf967ede06c704801bb8aaf9a00800dfdb37e7b0f651413bc551739'
           if ((Get-FileHash shieldbrowser-source.zip -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) { throw 'Source SHA256 mismatch' }
           Expand-Archive shieldbrowser-source.zip -DestinationPath . -Force
       - name: Native Chromium tests and Windows package
