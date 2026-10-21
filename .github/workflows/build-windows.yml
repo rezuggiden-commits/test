@@ -14,7 +14,7 @@ jobs:
       - name: Verify and extract project source
         shell: powershell
         run: |
-          $expected = '4c83a0ce07333f59232a4a5eb1e9d47ff31be93198c79efd9ecea1e1dda0635d'
+          $expected = '80d3297618f040e51d97fdd0dc1da9fcb6f6e50d65ea610eac3fee55a1fd9545'
           if ((Get-FileHash shieldbrowser-source.zip -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) { throw 'Source SHA256 mismatch' }
           Expand-Archive shieldbrowser-source.zip -DestinationPath . -Force
       - name: Build, test and package real Qt CEF browser
