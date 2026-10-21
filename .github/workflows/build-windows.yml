@@ -1,4 +1,4 @@
-name: Build ShieldBrowser Windows EXE
+name: Build Aster Windows EXE
 on:
   workflow_dispatch:
   push:
@@ -14,7 +14,7 @@ jobs:
       - name: Verify and extract project source
         shell: powershell
         run: |
-          $expected = '9a36688b3901b731ad4a03720188f9bf6b9be7ee1bd2d6d11e10ee862ff82b5e'
+          $expected = 'efdd9b6aef16061364e21a88e24cba13de8933f31c1a487b5fba0bb1200bae76'
           if ((Get-FileHash shieldbrowser-source.zip -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) { throw 'Source SHA256 mismatch' }
           Expand-Archive shieldbrowser-source.zip -DestinationPath . -Force
       - name: Build, test and package real Qt CEF browser
