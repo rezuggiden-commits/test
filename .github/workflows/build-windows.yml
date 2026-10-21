@@ -14,7 +14,7 @@ jobs:
       - name: Verify and extract project source
         shell: powershell
         run: |
-          $expected = '80d3297618f040e51d97fdd0dc1da9fcb6f6e50d65ea610eac3fee55a1fd9545'
+          $expected = '9b976b5423d6dae7f8f025a41dd3363a3cbb2666609910290ff61b022077feff'
           if ((Get-FileHash shieldbrowser-source.zip -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) { throw 'Source SHA256 mismatch' }
           Expand-Archive shieldbrowser-source.zip -DestinationPath . -Force
       - name: Build, test and package real Qt CEF browser
@@ -26,7 +26,7 @@ jobs:
         with:
           name: ShieldBrowser-Windows-x64
           path: |
-            ShieldBrowser/dist/ShieldBrowser-Windows-x64-portable.zip
+            ShieldBrowser/dist/Aster-Windows-x64-portable.zip
             ShieldBrowser/dist/START-HERE.txt
           if-no-files-found: error
           retention-days: 14
@@ -46,9 +46,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $tag = "v0.2.0-preview.$env:GITHUB_RUN_NUMBER"
-          $zip = 'ShieldBrowser/dist/ShieldBrowser-Windows-x64-portable.zip'
+          $tag = "v0.3.0-preview.$env:GITHUB_RUN_NUMBER"
+          $zip = 'ShieldBrowser/dist/Aster-Windows-x64-portable.zip'
           $hash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
-          "$hash  ShieldBrowser-Windows-x64-portable.zip" | Set-Content SHA256SUMS.txt -Encoding ascii
-          gh release create $tag $zip shieldbrowser-source.zip SHA256SUMS.txt --title "ShieldBrowser 0.2.0 Preview" --prerelease --notes "Redesigned native browser UI, dark/light themes, local new-tab page, inline find, tab shortcuts. Windows build, core tests and real CEF UI smoke tests passed. Preview software; no automatic updater. Extract the entire portable ZIP and run ShieldBrowser.exe."
+          "$hash  Aster-Windows-x64-portable.zip" | Set-Content SHA256SUMS.txt -Encoding ascii
+          gh release create $tag $zip shieldbrowser-source.zip SHA256SUMS.txt --title "Aster 0.3 Preview" --prerelease --notes "Aster: navigation/address fixes, network error pages, simplified UI, downloads cards, DNT/GPC, WebRTC policy and user-supplied proxy. Windows UI tests and real YouTube/Google/Example navigation passed on the CI network; not a regional-access or video-playback guarantee. Preview software; no automatic updater. Extract the entire portable ZIP and run Aster.exe."
           if ($LASTEXITCODE -ne 0) { throw 'Release publication failed' }
