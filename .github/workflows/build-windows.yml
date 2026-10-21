@@ -14,7 +14,7 @@ jobs:
       - name: Verify source and extract
         shell: powershell
         run: |
-          if ((Get-FileHash shieldbrowser-source.zip -Algorithm SHA256).Hash.ToLowerInvariant() -ne '3d088f291c99738709e865fdf0db53eaf96885cd2e78d4bc26ba22c2b04d2662') { throw 'Source SHA256 mismatch' }
+          if ((Get-FileHash shieldbrowser-source.zip -Algorithm SHA256).Hash.ToLowerInvariant() -ne '5595188c527680e46a4bd1d2c4eca78389a30a166282a6543c89756b6144a284') { throw 'Source SHA256 mismatch' }
           Expand-Archive shieldbrowser-source.zip -DestinationPath . -Force
       - name: Build and test own C++ Qt and CEF UI
         shell: powershell
