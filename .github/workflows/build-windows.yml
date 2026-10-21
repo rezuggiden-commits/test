@@ -1,54 +1,41 @@
-name: Build Aster Windows EXE
+name: Build and verify Noma Windows
 on:
   workflow_dispatch:
   push:
     paths: ['shieldbrowser-source.zip', '.github/workflows/build-windows.yml']
 permissions:
-  contents: write
+  contents: read
 jobs:
   build:
     runs-on: windows-2022
-    timeout-minutes: 60
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - name: Verify and extract project source
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Verify source and extract
         shell: powershell
         run: |
-          $expected = '73a454b287b7ec47c8fab1cfe55a6923d4c4d9af4b894ca0e87b47f5959984dc'
+          $expected = '62b5bb27b2ae72b7f64b1d7c3ac3b10827aa9274270334b673988cd87e12d53f'
           if ((Get-FileHash shieldbrowser-source.zip -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) { throw 'Source SHA256 mismatch' }
           Expand-Archive shieldbrowser-source.zip -DestinationPath . -Force
-      - name: Build, test and package real Qt CEF browser
+      - name: Native Chromium tests and Windows package
         shell: powershell
-        run: ./ShieldBrowser/tools/ci_windows.ps1
-      - name: Upload Windows portable browser
+        run: ./Noma/tools/ci_windows.ps1
+      - name: Upload candidate (not an automatic release)
         if: success()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: ShieldBrowser-Windows-x64
+          name: Noma-Windows-candidate
           path: |
-            ShieldBrowser/dist/Aster-Windows-x64-portable.zip
-            ShieldBrowser/dist/START-HERE.txt
+            Noma/dist/Noma-Windows-x64-portable.zip
+            Noma/dist/SHA256.txt
           if-no-files-found: error
-          retention-days: 14
-      - name: Upload diagnostic logs and test evidence
+      - name: Upload actual runtime evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: ShieldBrowser-build-diagnostics
-          path: |
-            ShieldBrowser/docs/
-            ShieldBrowser/build/Testing/
-            ShieldBrowser/build/CMakeFiles/CMakeConfigureLog.yaml
-          retention-days: 7
-      - name: Publish tested preview
-        if: success()
-        shell: powershell
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          $tag = "v0.3.0-preview.$env:GITHUB_RUN_NUMBER"
-          $zip = 'ShieldBrowser/dist/Aster-Windows-x64-portable.zip'
-          $hash = (Get-FileHash $zip -Algorithm SHA256).Hash.ToLowerInvariant()
-          "$hash  Aster-Windows-x64-portable.zip" | Set-Content SHA256SUMS.txt -Encoding ascii
-          gh release create $tag $zip shieldbrowser-source.zip SHA256SUMS.txt --title "Aster 0.3 Preview" --prerelease --notes "Aster: navigation/address fixes, network error pages, simplified UI, downloads cards, DNT/GPC, WebRTC policy and user-supplied proxy. Windows UI tests and real YouTube/Google/Example navigation passed on the CI network; not a regional-access or video-playback guarantee. Preview software; no automatic updater. Extract the entire portable ZIP and run Aster.exe."
-          if ($LASTEXITCODE -ne 0) { throw 'Release publication failed' }
+          name: Noma-runtime-evidence
+          path: Noma/docs/runtime/
+          if-no-files-found: warn
