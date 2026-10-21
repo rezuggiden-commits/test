@@ -17,7 +17,7 @@ jobs:
       - name: Verify source and extract
         shell: powershell
         run: |
-          $expected = '82740b80f0c10544a211ec34898413a179e724724ff796c62dd30861b9957553'
+          $expected = '70d8de4c85d2688963cc457055dc206eb7e8216ec6afabf07103be41d46bb5bf'
           if ((Get-FileHash shieldbrowser-source.zip -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) { throw 'Source SHA256 mismatch' }
           Expand-Archive shieldbrowser-source.zip -DestinationPath . -Force
       - name: Build sandboxed C++ browser and verify native functionality
