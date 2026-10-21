@@ -1,0 +1,42 @@
+name: Build ShieldBrowser Windows EXE
+on:
+  workflow_dispatch:
+  push:
+    paths: ['shieldbrowser-source.zip', '.github/workflows/build-windows.yml']
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Verify and extract project source
+        shell: powershell
+        run: |
+          $expected = '1a7ac7be99cf7a102bb9c4b9a6c3192bc0f4183b53e2c40b797d35a750d2fff0'
+          if ((Get-FileHash shieldbrowser-source.zip -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) { throw 'Source SHA256 mismatch' }
+          Expand-Archive shieldbrowser-source.zip -DestinationPath . -Force
+      - name: Build, test and package real Qt CEF browser
+        shell: powershell
+        run: ./ShieldBrowser/tools/ci_windows.ps1
+      - name: Upload Windows portable browser
+        if: success()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ShieldBrowser-Windows-x64
+          path: |
+            ShieldBrowser/dist/ShieldBrowser-Windows-x64-portable.zip
+            ShieldBrowser/dist/START-HERE.txt
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload diagnostic logs and test evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ShieldBrowser-build-diagnostics
+          path: |
+            ShieldBrowser/docs/
+            ShieldBrowser/build/Testing/
+            ShieldBrowser/build/CMakeFiles/CMakeConfigureLog.yaml
+          retention-days: 7
