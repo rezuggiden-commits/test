@@ -1,4 +1,4 @@
-name: Build and verify Noma Windows
+name: Build and verify Noma Native Windows
 on:
   workflow_dispatch:
   push:
@@ -8,7 +8,7 @@ permissions:
 jobs:
   build:
     runs-on: windows-2022
-    timeout-minutes: 25
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
@@ -17,25 +17,31 @@ jobs:
       - name: Verify source and extract
         shell: powershell
         run: |
-          $expected = 'f5a136abcb02e3863a21692f77e572e0088c6060bfe13cf0cd2d4f473fd71a02'
+          $expected = 'e08c7d0399904637e873dfe485d81d43ad2d9ae64a10863cc3259ed0c102a19f'
           if ((Get-FileHash shieldbrowser-source.zip -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expected) { throw 'Source SHA256 mismatch' }
           Expand-Archive shieldbrowser-source.zip -DestinationPath . -Force
-      - name: Native Chromium tests and Windows package
+      - name: Build sandboxed C++ browser and verify native functionality
         shell: powershell
-        run: ./Noma/tools/ci_windows.ps1
-      - name: Upload candidate (not an automatic release)
+        run: ./NomaNative/tools/ci_windows.ps1
+      - name: Upload verified candidate
         if: success()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: Noma-Windows-candidate
+          name: Noma-Native-Windows-candidate
           path: |
-            Noma/dist/Noma-Windows-x64-portable.zip
-            Noma/dist/SHA256.txt
+            NomaNative/dist/Noma-0.7-Windows-x64-portable.zip
+            NomaNative/dist/SHA256.txt
           if-no-files-found: error
       - name: Upload actual runtime evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: Noma-runtime-evidence
-          path: Noma/docs/runtime/
+          name: Noma-Native-runtime-evidence
+          path: |
+            NomaNative/docs/runtime/*.log
+            NomaNative/docs/runtime/*.json
+            NomaNative/docs/runtime/*.txt
+            NomaNative/docs/runtime/*.png
+            NomaNative/docs/runtime/profile/host-events.log
+            NomaNative/docs/runtime/profile/chromium.log
           if-no-files-found: warn
