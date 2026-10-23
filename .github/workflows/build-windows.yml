@@ -2,7 +2,7 @@ name: Validate own C++ Noma UI (no release)
 on:
   workflow_dispatch:
   push:
-    paths: ['shieldbrowser-source.zip', '.github/workflows/build-windows.yml']
+    paths: ['noma-native-source.zip', '.github/workflows/build-windows.yml']
 permissions:
   contents: read
 jobs:
@@ -14,8 +14,8 @@ jobs:
       - name: Verify source and extract
         shell: powershell
         run: |
-          if ((Get-FileHash shieldbrowser-source.zip -Algorithm SHA256).Hash.ToLowerInvariant() -ne 'eae223252fc979d2e144209de5f89a995698bf61b158c98d0f1d3bb5e16b0765') { throw 'Source SHA256 mismatch' }
-          Expand-Archive shieldbrowser-source.zip -DestinationPath . -Force
+          if ((Get-FileHash noma-native-source.zip -Algorithm SHA256).Hash.ToLowerInvariant() -ne '19a527971969564eda8516ee1400815adf4c36e8cf08e6cd6403ceedf0934ea0') { throw 'Source SHA256 mismatch' }
+          Expand-Archive noma-native-source.zip -DestinationPath . -Force
       - name: Build and test own C++ Qt and CEF UI
         shell: powershell
         run: ./NomaDesktop/tools/ci_windows.ps1
